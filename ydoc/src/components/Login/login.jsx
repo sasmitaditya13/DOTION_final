@@ -34,70 +34,73 @@ const navigate = useNavigate();
     dispatch(gettoken(mail));
     navigate("../");
   };
-
+  const handleLogin = () => {
+    window.location.href="http://localhost:8000/docapp/";
+  }
   return (
-    <div className="container flex-col place-content-center flex-grow-0">
-      <div className="place-self-center mt-20" >welcome</div>
-      <Button className= " " onPress={onOpen} color="primary">Open Modal</Button>
-      <Modal 
-        isOpen={isOpen} 
-        onOpenChange={onOpenChange}
-        placement="top-center"
-        isDismissable={false}
-        hideCloseButton={true}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Log in</ModalHeader>
-              <ModalBody>
-                <Input
-                value={mail}
-                onChange={(e) => setemail(e.target.value)}
-                  autoFocus
-                  endContent={
-                    <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  label="Email"
-                  placeholder="Enter your email"
-                  variant="bordered"
-                />
-                <Input
-                value={enrol}
-                onChange={(e) => setenrol(e.target.value)}
-                  endContent={
-                    <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  label="Enrol"
-                  placeholder="Enter your Enrollment number"
-                  type="password"
-                  variant="bordered"
-                />
-                <div className="flex py-2 px-1 justify-between">
-                  {/* <Checkbox
-                    classNames={{
-                      label: "text-small",
-                    }}
-                  >
-                    Remember me
-                  </Checkbox> */}
-                  {/* <Link color="primary" href="#" size="sm">
-                    Forgot password?
-                  </Link> */}
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose} onClick={handleclick}>
-                  Sign in
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </div>
+    <Button onClick={handleLogin}>Login</Button>
+    // <div className="container flex-col place-content-center flex-grow-0">
+    //   <div className="place-self-center mt-20" >welcome</div>
+    //   <Button className= " " onPress={onOpen} color="primary">Open Modal</Button>
+    //   <Modal 
+    //     isOpen={isOpen} 
+    //     onOpenChange={onOpenChange}
+    //     placement="top-center"
+    //     isDismissable={false}
+    //     hideCloseButton={true}
+    //   >
+    //     <ModalContent>
+    //       {(onClose) => (
+    //         <>
+    //           <ModalHeader className="flex flex-col gap-1">Log in</ModalHeader>
+    //           <ModalBody>
+    //             <Input
+    //             value={mail}
+    //             onChange={(e) => setemail(e.target.value)}
+    //               autoFocus
+    //               endContent={
+    //                 <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+    //               }
+    //               label="Email"
+    //               placeholder="Enter your email"
+    //               variant="bordered"
+    //             />
+    //             <Input
+    //             value={enrol}
+    //             onChange={(e) => setenrol(e.target.value)}
+    //               endContent={
+    //                 <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+    //               }
+    //               label="Enrol"
+    //               placeholder="Enter your Enrollment number"
+    //               type="password"
+    //               variant="bordered"
+    //             />
+    //             <div className="flex py-2 px-1 justify-between">
+    //               {/* <Checkbox
+    //                 classNames={{
+    //                   label: "text-small",
+    //                 }}
+    //               >
+    //                 Remember me
+    //               </Checkbox> */}
+    //               {/* <Link color="primary" href="#" size="sm">
+    //                 Forgot password?
+    //               </Link> */}
+    //             </div>
+    //           </ModalBody>
+    //           <ModalFooter>
+    //             <Button color="danger" variant="flat" onPress={onClose}>
+    //               Close
+    //             </Button>
+    //             <Button color="primary" onPress={onClose} onClick={handleclick}>
+    //               Sign in
+    //             </Button>
+    //           </ModalFooter>
+    //         </>
+    //       )}
+    //     </ModalContent>
+    //   </Modal>
+    // </div>
   );
 }

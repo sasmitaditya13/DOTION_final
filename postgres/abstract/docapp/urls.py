@@ -22,4 +22,5 @@ urlpatterns=[
   path('projectsearch/', views.ProjectSearchView.as_view()),
   path('documentsearch/', views.DocumentSearchView.as_view()),
   path('roledelete/', views.RoleDeleteView.as_view()),
+  path('getallproject/', views.ProjectGetAllView.as_view()),
   path('',views.index)]

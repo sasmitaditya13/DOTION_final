@@ -59,6 +59,7 @@ export const openproject = createAsyncThunk('counterSlice/openproject',async({pn
 
 export const opendocument = createAsyncThunk('counterSlice/opendocument',async({docname,project,token})=>{
   try{
+    console.log({docname,project,token})
     const res = await axios.get('http://127.0.0.1:8000/docapp/docs/',{params:{docname,project}}, {headers:{'Authorization': token}})
     return res.data
   } catch(err){
@@ -133,6 +134,15 @@ export const removemember = createAsyncThunk('counterSlice/removemember', async(
   }
 })
 
+export const getallproject = createAsyncThunk('counterSlice/createAllProjects' , async() => {
+  try{
+    const res = await axios.get('http://127.0.0.1:8000/docapp/getallproject/')
+    return res.data
+  } catch(err){
+    console.log(err)
+  }
+})
+
 const counterSlice = createSlice({
     name: 'counter',
     initialState: {
@@ -155,6 +165,7 @@ const counterSlice = createSlice({
         key: "ownname",
         label: "Owner Name",
       },],
+      rows2 : [],
     },
     reducers: {
       logout: (state) => {
@@ -168,6 +179,16 @@ const counterSlice = createSlice({
       state.dname="";
       state.role="";
       state.readonly = true;
+      state.rows = [];
+      state.columns = [{
+        key: "proname",
+        label: "Project Name",
+      },
+      {
+        key: "ownname",
+        label: "Owner Name",
+      },];
+      state.rows2 = [];
       },
       middletoken: (state) => {
         console.log(state.token)
@@ -180,31 +201,6 @@ const counterSlice = createSlice({
         state.owname = action.payload;
         console.log(state.owname);
       },
-      
-      // createrole: (state,action1,action2) => {
-      //   let token = 'Token '+ state.token;
-      //   fetch('http://127.0.0.1:8000/docapp/start/projectrole/', {
-      //       method: 'POST',
-      //       body: JSON.stringify({
-      //         "project":state.projectid,
-      //         "user":action1.payload,
-      //         "role":action2.payload
-      //       }),
-      //       headers: {
-      //           'Content-type': 'application/json; charset=UTF-8',
-      //           'Authorization': token
-      //         },
-      //     })
-      //        .then((response) => response.json())
-      //        .then((data) => {
-      //           console.log(data);
-      //           console.log(data.id);
-      //           window.alert("Role created successfully")
-      //        })
-      //        .catch((err) => {
-      //           console.log(err.message);
-      //        });
-      // },
       },
     extraReducers: (builder) => {
       builder
@@ -374,6 +370,16 @@ const counterSlice = createSlice({
       .addCase(removemember.fulfilled , (state,action)=>{
         window.alert(action.payload)
       })
+      .addCase(getallproject.fulfilled , (state,action) => {
+        state.rows2 = []; 
+        console.log(action.payload)
+        if(action.payload != undefined){
+          state.rows2 = action.payload
+          }
+      }).addCase(getallproject.rejected , (state,action) => {
+        state.rows2 = [];
+      })
+
     }
     }
   )
@@ -389,133 +395,3 @@ export const store = configureStore({
 
 
 
-
-
-
-
-
-
-
-
-  // openproject: (state,action) => {
-      //   let token = 'Token '+ state.token;
-      //   fetch('http://127.0.0.1:8000/docapp/project/', {
-      //       method: 'GET',
-      //       body: JSON.stringify({
-      //         "pname":action.payload,
-      //         "user":state.owname
-      //       }),
-      //       headers: {
-      //           'Content-type': 'application/json; charset=UTF-8',
-      //           'Authorization': token
-      //         },
-      //     })
-      //        .then((response) => response.json())
-      //        .then((data) => {
-      //           console.log(data);
-      //           console.log(data.id);
-      //           state.projectid = data.id;
-      //           state.pname = action.payload;
-      //        })
-      //        .catch((err) => {
-      //           console.log(err.message);
-      //        }); 
-      // },
-
-      // createproject: (state,action) => {
-      //   state.pname = action.payload
-      //   console.log(state.token)
-      //   let token = 'Token '+ state.token;
-      //   console.log(token);
-      //   fetch('http://127.0.0.1:8000/docapp/start/project/', {
-      //       method: 'POST',
-      //       body: JSON.stringify({
-      //         "pname":action.payload,
-      //         "user":state.email
-      //       }),
-      //       headers: {
-      //           'Content-type': 'application/json; charset=UTF-8',
-      //           'Authorization': token
-      //         },
-      //     })
-      //        .then((response) => response.json())
-      //        .then((data) => {
-      //           console.log(data);
-      //           console.log(data.id);
-      //           state.projectid = data.id;
-      //           state.pname = action.payload;
-      //             fetch('http://127.0.0.1:8000/docapp/start/projectrole/', {
-      //               method: 'POST',
-      //               body: JSON.stringify({
-      //                 "user":state.email,
-      //                 "project":state.projectid,
-      //                 "role":"Owner"
-      //               }),
-      //               headers: {
-      //                   'Content-type': 'application/json; charset=UTF-8',
-      //                   'Authorization': token
-      //                },
-      //             })
-      //                 .then((response) => response.json())
-      //                 .then((data) => {
-      //                 console.log(data);
-      //                 console.log(data.id);
-      //                 state.owname = state.email;
-      //                 state.pname = action.payload;
-      //        })
-      //        .catch((err) => {
-      //           window.alert(err.message);
-      //        }); 
-      //        })
-      //        .catch((err) => {
-      //           window.alert(err.message);
-      //        }); 
-      // },
-
-      // opendocument: (state,action) => {
-      //   let token = 'Token '+ state.token;
-      //   fetch('http://127.0.0.1:8000/docapp/docs/', {
-      //     method: 'GET',
-      //     body: JSON.stringify({
-      //       "docname":action.payload,
-      //       "project":state.projectid
-      //     }),
-      //     headers: {
-      //         'Content-type': 'application/json; charset=UTF-8',
-      //         'Authorization': token
-      //       },
-      //   })
-      //      .then((response) => response.json())
-      //      .then((data) => {
-      //         console.log(data);
-      //         console.log(data.id);
-      //         state.docid = data.id;
-      //         state.dname = action.payload;
-      //         state.delta = data.delta;
-      //      })
-      //      .catch((err) => {
-      //         console.log(err.message);
-      //      }); 
-      // },
-      // updatedocument: (state,action) => {
-      //   let token = 'Token '+ state.token;
-      //   state.delta = action.payload
-      //   fetch(('http://127.0.0.1:8000/docapp/docs/'+state.docid+"/"), {
-      //     method: 'PATCH',
-      //     body: JSON.stringify({
-      //       "delta":state.delta
-      //     }),
-      //     headers: {
-      //         'Content-type': 'application/json; charset=UTF-8',
-      //         'Authorization': token
-      //       },
-      //   })
-      //      .then((response) => response.json())
-      //      .then((data) => {
-      //         console.log(data);
-      //         console.log(data.id);
-      //      })
-      //      .catch((err) => {
-      //         console.log(err.message);
-      //      }); 
-      // },

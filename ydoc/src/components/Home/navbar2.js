@@ -3,7 +3,7 @@ import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@nex
 import {  Dropdown,  DropdownTrigger,  DropdownMenu,  DropdownSection,  DropdownItem} from "@nextui-org/react";
 import {Popover, PopoverTrigger, PopoverContent, Input} from "@nextui-org/react";
 import {Select, SelectItem} from "@nextui-org/react";
-import { gettoken,getemail,openproject,createproject ,getowner,middletoken, getrole,createdocument, opendocument, deleteproject,logout,createrole, searchproject, searchdocument, deletedocument, removemember} from "../../store.js";
+import { gettoken,getemail,openproject,createproject ,getowner,middletoken, getrole,createdocument, opendocument, deleteproject,logout,createrole, searchproject, searchdocument, deletedocument, removemember, getallproject} from "../../store.js";
 import { Navigate, redirect, useNavigate } from "react-router-dom";
 import { UseSelector, useDispatch, useSelector } from "react-redux";
 import {Card, CardBody} from "@nextui-org/react";
@@ -17,6 +17,7 @@ export default function NavBar() {
   const searchParams = new URLSearchParams(window.location.search);
   const sendmail = searchParams.get("email")
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const {isOpen: isOpens, onOpen: onOpens, onOpenChange : OnOpenChanges} = useDisclosure();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const semail = useSelector(state => state.email)
@@ -28,6 +29,7 @@ export default function NavBar() {
   const sdocid = useSelector(state=> state.docid)
   const rows = useSelector(state => state.rows)
   const columns = useSelector(state => state.columns)
+  const rows2 = useSelector(state => state.rows2)
   const [project,setproject] = useState('project 1');
   const [doc,setdoc] = useState('doc 1');
   const [owner,setowner] = useState();
@@ -35,7 +37,21 @@ export default function NavBar() {
   const [columnmaker, setcolumn] = useState('P');
   const [squery , setquery] = useState('');
   const [memmail,setmember] = useState('');
-  
+  const [key , setkey] = useState("0");
+  const [selectedKeys, setSelectedKeys] = React.useState(new Set(["0"]));
+  const columns2=[{
+    key: "docname",
+    label: "Document Name",
+  },
+  {
+    key: "proname",
+    label: "Project Name",
+  },
+  {
+    key: "ownname",
+    label: "Owner Name",
+  },
+]
     // document.getElementById('editor').style.height = "au
     useEffect(()=>{
       dispatch(getemail(sendmail));
@@ -49,10 +65,18 @@ export default function NavBar() {
       console.log(owner)
       console.log(stoken)
       dispatch(openproject({pname:project,user:owner,token:stoken}))
-      if(project != ''){
-        dispatch(getrole({project:sprojectid,token:stoken}))
-      }
+      // setTimeout(() => {
+      //   if(project != ''){
+      //     dispatch(getrole({project:sprojectid,token:stoken}))
+      //   }
+      // }, 500);
       // dispatch(getrole({project:sprojectid,token:stoken}))
+    }
+    useEffect(() => {
+      handlegetrole();
+   },[sprojectid])
+    const handlegetrole = () => {
+      dispatch(getrole({project:sprojectid,token:stoken}))
     }
     const handlecreateproject = () => {
       console.log(project)
@@ -116,11 +140,57 @@ export default function NavBar() {
       }
     }
 
+    const handlegetallprojects = () => {
+      dispatch(getallproject())
+    }
+
+    const handleopenprojectdocument = () => {
+      for( var x of selectedKeys.values()){
+        console.log(rows2[x].proname)
+        console.log(rows2[x].ownname)
+        dispatch(openproject({pname:rows2[x].proname , user:rows2[x].ownname, token:stoken}))
+          if(rows2[x].docid !== undefined){
+            dispatch(opendocument({docname:rows2[x].docname , project:rows2[x].proid , token:stoken}))}
+        }
+    }
+
   return (
     <>
     <Navbar isBordered>
       <NavbarBrand>
-        <p className="font-bold text-inherit">DOTION</p>
+      <Button onPress={() => {handlegetallprojects(); onOpens();}}>DOTION</Button>
+      <Modal isOpen={isOpens} onOpenChange={OnOpenChanges} size="5xl">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Your Projects</ModalHeader>
+              <ModalBody>
+              <Table color="primary" aria-label="Example table with dynamic content" selectionMode="single" selectedKeys={selectedKeys}
+      onSelectionChange={setSelectedKeys}>
+      <TableHeader columns={columns2}>
+        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+      </TableHeader>
+      <TableBody items={rows2} emptyContent="No Results Found">
+        {(item) => (
+          <TableRow key={item.key}>
+            {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+                <Button color="primary" onPress={() => {onClose(); handleopenprojectdocument();}}>
+                  Open
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-16" justify="center">
         <NavbarItem>
@@ -157,7 +227,7 @@ export default function NavBar() {
             <div className="mt-2 flex flex-col gap-2 w-full">
               <Input value = {project} onChange={(e) => setproject(e.target.value)} label="Project Name" size="sm" variant="bordered" />
               <Input value = {owner} onChange={(e) => setowner(e.target.value)}  label="Owner email" size="sm" variant="bordered" />
-              <Button onClick={handleopenproject}>Open Project</Button>
+              <Button onClick={() => {handleopenproject();}}>Open Project</Button>
             </div>
           </div>
         )}

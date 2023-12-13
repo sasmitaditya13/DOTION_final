@@ -25,7 +25,12 @@ from rest_framework.parsers import JSONParser
 from django.contrib.postgres.search import SearchVector
 import json
 from django.contrib.postgres.search import TrigramWordSimilarity
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 # Create your views here.
 
 
@@ -108,7 +113,32 @@ class DocumentSearchView(APIView):
       return Response(toreturn)
         
     
+class ProjectGetAllView(APIView):
+  authentication_classes = [TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
   
+  def get(self,request,*args, **kwargs):
+    toreturn = []
+    project = Project.objects.all()
+    i=0
+    if (project.first() == None):
+      return Response(toreturn)
+    else:
+      for x in project:
+        if (Project_role.is_allowed(x.id , request.user)):
+          document = Document.objects.all().filter(project = x)
+          if(document.first() == None):
+            z={'key':i , 'proname':x.pname  , 'docname':"NO DOCUMENT YET", 'ownname':x.user.email , 'proid':x.id }
+            toreturn.append(z)
+            i=i+1
+          else:
+           for y in document:
+              z={'key':i , 'proname':x.pname  , 'docname':y.docname , 'ownname':x.user.email , 'proid':x.id , 'docid':y.id}
+              toreturn.append(z)
+              i=i+1
+        else:
+          continue
+      return Response(toreturn)
 class ProjectGetView(APIView):
   authentication_classes = [TokenAuthentication]
   permission_classes = [permissions.IsAuthenticated]
@@ -224,14 +254,14 @@ class DocumentRoleViewSet(viewsets.ModelViewSet):
   permission_classes = [permissions.AllowAny]
 
 def index(request):
-  return redirect("https://channeli.in/oauth/authorise/?client_id=2ZX53W71ALyNvM8UryjFGfiNGi6GkdCUgxDvyrgf&redirect_uri=http://localhost:8000/docapp/authenticate/&state='success'")
+  url = "https://channeli.in/oauth/authorise/?client_id="+CLIENT_ID+"&redirect_uri=http://localhost:8000/docapp/authenticate/&state='success'"
+  return redirect(url)
 
 def authenticate(request):
   code = request.GET['code']
   print(code)
   url1 = "https://channeli.in/open_auth/token/"
-  # return redirect("http://localhost:8000/docapp/gettoken/")
-  payload1 = {'client_id': '2ZX53W71ALyNvM8UryjFGfiNGi6GkdCUgxDvyrgf', 'client_secret':'lp9Zt2mrL3lohhweEppEw6dHmBsfITDuNJ9SCZcxK16mDTby1cBNz12fJJssHAguLh6SV2lKT1s8J1agNPOmSshNQFRojx2Aq1MXIAIblhTYYpOC4cQbtjEvtMFmmom2','grant_type': 'authorization_code' , 'redirect_uri':'http://localhost:8000/docapp/authenticate/','code': code}
+  payload1 = {'client_id': CLIENT_ID, 'client_secret':CLIENT_SECRET,'grant_type': 'authorization_code' , 'redirect_uri':'http://localhost:8000/docapp/authenticate/','code': code}
   response1 = requests.post(url1 , data=payload1)
   token = "Bearer " + response1.json().get('access_token','')
   print(response1.json().get('access_token',''))
